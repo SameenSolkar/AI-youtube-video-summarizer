@@ -1,0 +1,45 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font: 12px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  padding: 16px;
+  min-height: 130px;
+}
+
+#title {
+  margin-bottom: 8px;
+}
+
+#key {
+  width: 90%;
+  padding: 8px;
+  margin-bottom: 2px;
+  border-radius: 6px;
+  border: 1px solid gray;
+}
+
+#key:focus {
+  outline: none;
+}
+
+#message {
+  margin-bottom: 10px;
+}
+
+#save {
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: rgb(25, 135, 84);
+  color: azure;
+  cursor: pointer;
+}
+
+/* .note {
+  font-size: 10px;
+  color: #666;
+  margin-top: 6px;
+} */
