@@ -7,11 +7,14 @@
     "default_popup": "popup.html",
     "default_title": "Summarize YouTube video"
   },
+  "side_panel": {
+    "default_path": "side-panel.html"
+  },
   "options_ui": {
     "page": "options.html",
     "open_in_tab": false
   },
-  "permissions": ["storage", "activeTab", "tabs","sidePanel"],
+  "permissions": ["storage", "activeTab", "tabs","sidePanel","contextMenus"],
   "host_permissions": [
     "https://generativelanguage.googleapis.com/*"
   ],

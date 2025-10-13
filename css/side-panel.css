@@ -1,0 +1,35 @@
+#summary{
+    margin-top: 10px;
+    text-wrap: wrap;
+    position: relative;
+}
+
+.out-processing {
+    height: 16px;
+    overflow: hidden;
+}
+
+
+.out-processing::before {
+    position: absolute;
+    bottom: 0%;
+    content: "Connecting to YouTube...";
+    animation: scrollBefore 250ms linear 3.5s forwards;
+  }
+  
+  .out-processing::after {
+    position: absolute;
+    bottom: -100%;
+    content: "Transcribing Video...";
+    animation: scrollAfter 250ms linear 3.8s forwards; /* delay so it runs after before */
+  }
+  
+  @keyframes scrollBefore {
+    from { bottom: 0%; opacity: 1; }
+    to { bottom: 100%; opacity: 0; }
+  }
+  
+  @keyframes scrollAfter {
+    from { bottom: -100%; opacity: 0; }
+    to { bottom: 0%; opacity: 1; }
+  }
