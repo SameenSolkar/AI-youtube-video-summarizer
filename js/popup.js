@@ -13,32 +13,37 @@ function isYouTubeUrl(u) {
 
 // Open side panel and send message to it (video url and style of summary)
 document.getElementById("summarize").addEventListener("click", async () => {
-  const [tab] = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  // This will open the panel in all the pages on the current window.
-  chrome.sidePanel.open({ windowId: tab.windowId });
-  
-  const url = urlEl.value.trim();
+  try {
+    const url = urlEl.value.trim();
 
-  if (!isYouTubeUrl(url)) {
-    throw new Error("Please paste a valid YouTube URL.");
-  }
+    if (!isYouTubeUrl(url)) {
+      throw new Error("Please paste a valid YouTube URL.");
+    }
 
-  // Summary style
-  const style = styleEl.value;
-
-  // Close the popup window
-  setTimeout(() => {
-    // Close popup and open side panel via background script
-    chrome.runtime.sendMessage({
-      action: "getSummary",
-      data: { url, style },
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
     });
+    // This will open the panel in all the pages on the current window.
+    chrome.sidePanel.open({ windowId: tab.windowId });
 
-    window.close();
-  }, 100);
+    // Summary style
+    const style = styleEl.value;
+
+    // Close the popup window
+    setTimeout(() => {
+      // Close popup and open side panel via background script
+      chrome.runtime.sendMessage({
+        action: "getSummary",
+        data: { url, style },
+      });
+
+      window.close();
+    }, 500);
+  } catch (error) {
+    outEl.style.color = "red";
+    outEl.innerText = error.message;
+  }
 });
 
 // Autofill current tab’s URL if it’s a YouTube watch page

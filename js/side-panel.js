@@ -8,20 +8,20 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.action === "getSummary") {
     const { url, style } = message.data;
 
-    try {     
-        summaryEl.innerText = "";
-        summaryEl.style.color = "black";
-        summaryEl.classList.add("out-processing");
+    try {
+      summaryEl.innerText = "";
+      summaryEl.style.color = "black";
+      summaryEl.classList.add("out-processing");
 
-        const summary = await summarizeWithGemini(url, style);
-        const formattedSummary = formatText(summary);
+      const summary = await summarizeWithGemini(url, style);
+      const formattedSummary = formatText(summary);
 
-        summaryEl.classList.remove("out-processing");
-        summaryEl.innerHTML = formattedSummary;
+      summaryEl.classList.remove("out-processing");
+      summaryEl.innerHTML = formattedSummary;
     } catch (error) {
-        summaryEl.classList.remove("out-processing");
-        summaryEl.style.color = "red";
-        summaryEl.innerText = error?.message || String(error);
+      summaryEl.classList.remove("out-processing");
+      summaryEl.style.color = "red";
+      summaryEl.innerText = error?.message || String(error);
     }
   }
 });
@@ -43,48 +43,49 @@ function buildPrompt(style) {
 
 // Core call to Gemini: pass the YouTube link as a file part
 async function summarizeWithGemini(url, style) {
-  const { GEMINI_API_KEY } = await chrome.storage.local.get("GEMINI_API_KEY");
-  if (!GEMINI_API_KEY)
-    throw new Error(
-      "Missing API key. Open the extension Options to save your Gemini API key."
-    );
+  
+    const { GEMINI_API_KEY } = await chrome.storage.local.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY)
+      throw new Error(
+        "Missing API key. Open the extension Options to save your Gemini API key."
+      );
 
-  const body = {
-    contents: [
-      {
-        parts: [
-          // Crucial: pass the video URL as a file part so Gemini fetches/understands it.
-          { file_data: { file_uri: url } },
-          { text: buildPrompt(style) },
-        ],
+    const body = {
+      contents: [
+        {
+          parts: [
+            // Crucial: pass the video URL as a file part so Gemini fetches/understands it.
+            { file_data: { file_uri: url } },
+            { text: buildPrompt(style) },
+          ],
+        },
+      ],
+    };
+
+    const endpoint = `${API_BASE}/models/${encodeURIComponent(
+      GEMINI_MODEL
+    )}:generateContent`;
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": GEMINI_API_KEY,
       },
-    ],
-  };
+      body: JSON.stringify(body),
+    });
 
-  const endpoint = `${API_BASE}/models/${encodeURIComponent(
-    GEMINI_MODEL
-  )}:generateContent`;
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-goog-api-key": GEMINI_API_KEY,
-    },
-    body: JSON.stringify(body),
-  });
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = data?.error?.message || res.statusText || "Gemini API error";
+      throw new Error(msg);
+    }
 
-  const data = await res.json();
-  if (!res.ok) {
-    const msg = data?.error?.message || res.statusText || "Gemini API error";
-    throw new Error(msg);
-  }
-
-  // Pull text parts into a single string
-  const text = data.candidates?.[0]?.content?.parts
-    ?.map((p) => p.text)
-    .join("\n")
-    .trim();
-  return text || "(No text returned)";
+    // Pull text parts into a single string
+    const text = data.candidates?.[0]?.content?.parts
+      ?.map((p) => p.text)
+      .join("\n")
+      .trim();
+    return text || "(No text returned)";
 }
 
 function formatText(input) {
