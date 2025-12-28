@@ -8,6 +8,8 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.action === "getSummary") {
     const { url, style } = message.data;
 
+    console.log(message);
+
     try {
       summaryEl.innerText = "";
       summaryEl.style.color = "black";
