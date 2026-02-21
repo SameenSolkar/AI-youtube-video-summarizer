@@ -30,6 +30,11 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
 // Build a prompt template based on the selected style
 function buildPrompt(style) {
+  const validStyles = ["chapters", "tldr", "study", "bullets"];
+  if (!validStyles.includes(style)) {
+    style = "bullets"; // Default fallback for unknown styles
+  }
+
   switch (style) {
     case "chapters":
       return "Summarize this video into clear chapters with titles. For each chapter, add a start timestamp (MM:SS) and 2-3 bullets.";
@@ -82,16 +87,34 @@ async function summarizeWithGemini(url, style) {
       throw new Error(msg);
     }
 
-    // Pull text parts into a single string
-    const text = data.candidates?.[0]?.content?.parts
+    // Validate candidates exist in response
+    if (!data.candidates || !Array.isArray(data.candidates) || data.candidates.length === 0) {
+      throw new Error("Invalid API response: no candidates returned");
+    }
+
+    // Pull text parts into a single string, filtering out null/undefined parts
+    const text = data.candidates[0]?.content?.parts
       ?.map((p) => p.text)
+      .filter(Boolean)
       .join("\n")
       .trim();
-    return text || "(No text returned)";
+
+    if (!text) throw new Error("No summary content returned from API");
+    return text;
+}
+
+// Escape HTML entities to prevent XSS attacks before inserting into innerHTML
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 function formatText(input) {
-  return input
+  // Escape all HTML first to prevent XSS from API response
+  const escaped = escapeHtml(input);
+
+  return escaped
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // markdown bold to HTML
     .replace(/^\*\s*(.+)/gm, "<li>$1</li>") // * bullets to <li>
     .replace(/(<li>[\s\S]*<\/li>)/g, "<ul>$1</ul>") // wrap all li in ul

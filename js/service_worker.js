@@ -1,8 +1,27 @@
+// Validate that a URL is a legitimate YouTube URL (HTTPS only)
+function isYouTubeUrl(url) {
+  try {
+    const u = new URL(url);
+    return (
+      u.protocol === "https:" &&
+      /^(www\.)?(youtube\.com|youtu\.be)$/i.test(u.hostname)
+    );
+  } catch {
+    return false;
+  }
+}
+
 // A generic onclick callback function.
 chrome.contextMenus.onClicked.addListener(genericOnClick);
 
 function genericOnClick(info, tab) {
   console.log("Standard context menu item clicked.", info);
+
+  // Validate URL before processing
+  if (!info.linkUrl || !isYouTubeUrl(info.linkUrl)) {
+    console.error("Invalid or non-YouTube URL — aborting.", info.linkUrl);
+    return;
+  }
 
   // MUST be immediate (user gesture)
   chrome.sidePanel.open({ windowId: tab.windowId });
@@ -70,14 +89,4 @@ chrome.runtime.onInstalled.addListener(function () {
     id: "study",
   });
 
-  // Intentionally create an invalid item, to show off error checking in the
-  // create callback.
-  chrome.contextMenus.create(
-    { title: "Oops", parentId: 999, id: "errorItem" },
-    function () {
-      if (chrome.runtime.lastError) {
-        console.log("Got expected error: " + chrome.runtime.lastError.message);
-      }
-    }
-  );
 });
