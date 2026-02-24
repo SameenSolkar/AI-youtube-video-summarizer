@@ -4,9 +4,9 @@ let outEl = document.getElementById("out");
 
 const styleEl = document.getElementById("style");
 
-// Basic YouTube URL check
+// YouTube URL check — HTTPS only
 function isYouTubeUrl(u) {
-  return /^https?:\/\/(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)/i.test(
+  return /^https:\/\/(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)/i.test(
     u
   );
 }
