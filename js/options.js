@@ -17,6 +17,10 @@ document.getElementById("save").addEventListener("click",  () => {
 
     message.style.color = "green"
     message.innerText = "GEMINI key saved"
+
+    setTimeout(()=>{
+      window.close()
+    }, 1000)
   })
   .catch(error=>{
     message.style.color = "green"
