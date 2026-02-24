@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "YouTube Summarizer (Gemini)",
-  "version": "1.0.0",
-  "description": "Paste a YouTube link and get a summary via Google Gemini.",
+  "version": "1.0.1",
+  "description": "Instantly summarize any YouTube video using Google Gemini AI. Save time by getting the key points without watching the full video.",
   "action": {
     "default_popup": "popup.html",
     "default_title": "Summarize YouTube video"
